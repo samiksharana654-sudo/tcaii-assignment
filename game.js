@@ -101,6 +101,39 @@ function isTouchingCactus(testLeft, testTop) {
 	return false;
 }
 
+// keeps a proposed left position inside the window (0 to window width - player width)
+function clampLeft(newLeft) {
+	var player = document.getElementById('player');
+	var maxLeft = window.innerWidth - player.offsetWidth;
+	if (newLeft > maxLeft) {
+		newLeft = maxLeft;
+	}
+	if (newLeft < 0) {
+		newLeft = 0;
+	}
+	return newLeft;
+}
+
+// keeps a proposed top position inside the window (0 to window height - player height)
+function clampTop(newTop) {
+	var player = document.getElementById('player');
+	var maxTop = window.innerHeight - player.offsetHeight;
+	if (newTop > maxTop) {
+		newTop = maxTop;
+	}
+	if (newTop < 0) {
+		newTop = 0;
+	}
+	return newTop;
+}
+
+// when the window is resized, pull the player back inside the new window size
+function keepPlayerOnScreen() {
+	var player = document.getElementById('player');
+	player.style.left = clampLeft(player.offsetLeft) + 'px';
+	player.style.top = clampTop(player.offsetTop) + 'px';
+}
+
 function move() {
 	// the player cannot move while the firing lock is on
 	if (isFiring == true) {
@@ -112,7 +145,7 @@ function move() {
 	var positionTop = player.offsetTop;
 
 	if (downPressed == true) {
-		var newTop = positionTop + 1;
+		var newTop = clampTop(positionTop + 1);
 		if (isTouchingCactus(positionLeft, newTop) == false) {
 			player.style.top = newTop + 'px';
 		}
@@ -121,7 +154,7 @@ function move() {
 		}
 	}
 	if (upPressed == true) {
-		var newTop = positionTop - 1;
+		var newTop = clampTop(positionTop - 1);
 		if (isTouchingCactus(positionLeft, newTop) == false) {
 			player.style.top = newTop + 'px';
 		}
@@ -130,7 +163,7 @@ function move() {
 		}
 	}
 	if (leftPressed == true) {
-		var newLeft = positionLeft - 1;
+		var newLeft = clampLeft(positionLeft - 1);
 		if (isTouchingCactus(newLeft, positionTop) == false) {
 			player.style.left = newLeft + 'px';
 		}
@@ -139,7 +172,7 @@ function move() {
 		}
 	}
 	if (rightPressed == true) {
-		var newLeft = positionLeft + 1;
+		var newLeft = clampLeft(positionLeft + 1);
 		if (isTouchingCactus(newLeft, positionTop) == false) {
 			player.style.left = newLeft + 'px';
 		}
@@ -855,6 +888,7 @@ function startGame() {
 function myLoadFunction() {
 	document.addEventListener('keydown', keydown);
 	document.addEventListener('keyup', keyup);
+	window.addEventListener('resize', keepPlayerOnScreen);
 
 	createScoreElements();
 	showScore();
